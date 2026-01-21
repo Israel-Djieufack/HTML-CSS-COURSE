@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Management Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+        }
+        .logout {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+        nav {
+            background-color: #444;
+            padding: 0.5rem;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        nav ul li {
+            margin: 0 1rem;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            display: block;
+        }
+        nav ul li a:hover, nav ul li.active a {
+            background-color: #555;
+        }
+        main {
+            padding: 2rem;
+        }
+        section {
+            display: none;
+        }
+        section.active {
+            display: block;
+        }
+        .login-form {
+            max-width: 400px;
+            margin: 2rem auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .login-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .login-form button {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .login-form button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            background-color: white;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        table th {
+            background-color: #f2f2f2;
+        }
+        form {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        form label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        form input, form select, form textarea {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        form button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        form button:hover {
+            background-color: #45a049;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .card {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .chat {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+        .chat-input {
+            display: flex;
+        }
+        .chat-input input {
+            flex: 1;
+            margin-right: 0.5rem;
+        }
+        .report-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .report-card h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .report-card table {
+            margin-bottom: 2rem;
+        }
+        .print-btn {
+            background-color: #2196F3;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        .print-btn:hover {
+            background-color: #0b7dda;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .report-card, .report-card * {
+                visibility: visible;
+            }
+            .report-card {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>School Management Platform</h1>
+        <button class="logout hidden" onclick="logout()">Logout</button>
+    </header>
+    <nav id="nav" class="hidden">
+        <ul>
+            <li id="dashboard-nav"><a href="#" onclick="showSection('dashboard')">Dashboard</a></li>
+            <li id="students-nav"><a href="#" onclick="showSection('students')">Students</a></li>
+            <li id="teachers-nav"><a href="#" onclick="showSection('teachers')">Teachers</a></li>
+            <li id="courses-nav"><a href="#" onclick="showSection('courses')">Courses</a></li>
+            <li id="attendance-nav"><a href="#" onclick="showSection('attendance')">Attendance</a></li>
+            <li id="grades-nav"><a href="#" onclick="showSection('grades')">Grades</a></li>
+            <li id="report-cards-nav"><a href="#" onclick="showSection('report-cards')">Report Cards</a></li>
+            <li id="chat-nav"><a href="#" onclick="showSection('chat')">Chat</a></li>
+        </ul>
+    </nav>
+    <main>
+        <section id="login" class="active">
+            <form class="login-form" onsubmit="login(event)">
+                <h2>Login</h2>
+                <label for="username">Username:</label>
+                <input type="text" id="username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+                <button type="submit">Login</button>
+            </form>
+        </section>
+
+        <section id="dashboard">
+            <h2>Dashboard</h2>
+            <div class="dashboard" id="dashboard-cards">
+                <!-- Cards will be populated by JS -->
+            </div>
+        </section>
+
+        <section id="students">
+            <h2>Students</h2>
+            <form id="addStudentForm" onsubmit="addStudent(event)">
+                <h3>Add Student</h3>
+                <label for="studentName">Name:</label>
+                <input type="text" id="studentName" required>
+                <label for="studentEmail">Email:</label>
+                <input type="email" id="studentEmail" required>
+                <label for="studentGrade">Grade:</label>
+                <select id="studentGrade" required>
+                    <option value="">Select Grade</option>
+                    <option value="9">9th</option>
+                    <option value="10">10th</option>
+                    <option value="11">11th</option>
+                    <option value="12">12th</option>
+                </select>
+                <button type="submit">Add Student</button>
+            </form>
+            <table id="studentsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Grade</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsTableBody">
+                    <!-- Rows will be populated by JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="teachers">
+            <h2>Teachers</h2>
+            <form id="addTeacherForm" onsubmit="addTeacher(event)">
+                <h3>Add Teacher</h3>
+                <label for="teacherName">Name:</label>
+                <input type="text" id="teacherName" required>
+                <label for="teacherEmail">Email:</label>
+                <input type="email" id="teacherEmail" required>
+                <label for="teacherSubject">Subject:</label>
+                <input type="text" id="teacherSubject" required>
+                <label for="teacherClass">Class:</label>
+                <select id="teacherClass" required>
+                    <option value="">Select Class</option>
+                    <option value="9">9th</option>
+                    <option value="10">10th</option>
+                    <option value="11">11th</option>
+                    <option value="12">12th</option>
+                </select>
+                <button type="submit">Add Teacher</button>
+            </form>
+            <table id="teachersTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Subject</th>
+                        <th>Class</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="teachersTableBody">
+                    <!-- Rows will be populated by JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="courses">
+            <h2>Courses</h2>
+            <form id="addCourseForm" onsubmit="addCourse(event)">
+                <h3>Add Course</h3>
+                <label for="courseName">Course Name:</label>
+                <input type="text" id="courseName" required>
+                <label for="courseTeacher">Teacher:</label>
+                <select id="courseTeacher" required>
+                    <!-- Options will be populated by JS -->
+                </select>
+                <label for="courseDescription">Description:</label>
+                <textarea id="courseDescription"></textarea>
+                <button type="submit">Add Course</button>
+            </form>
+            <table id="coursesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Teacher</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="coursesTableBody">
+                    <!-- Rows will be populated by JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="attendance">
+            <h2>Attendance</h2>
+            <form id="markAttendanceForm" onsubmit="markAttendance(event)">
+                <h3>Mark Attendance</h3>
+                <label for="attendanceDate">Date:</label>
+                <input type="date" id="attendanceDate" required>
+                <label for="attendanceStudent">Student:</label>
+                <select id="attendanceStudent" required>
+                    <!-- Options will be populated by JS -->
+                </select>
+                <label for="attendanceStatus">Status:</label>
+                <select id="attendanceStatus" required>
+                    <option value="present">Present</option>
+                    <option value="absent">Absent</option>
+                </select>
+                <button type="submit">Mark Attendance</button>
+            </form>
+            <table id="attendanceTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Student</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceTableBody">
+                    <!-- Rows will be populated by JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="grades">
+            <h2>Grades</h2>
+            <form id="addGradeForm" onsubmit="addGrade(event)">
+                <h3>Add Grade</h3>
+                <label for="gradeStudent">Student:</label>
+                <select id="gradeStudent" required>
+                    <!-- Options will be populated by JS -->
+                </select>
+                <label for="gradeCourse">Course:</label>
+                <select id="gradeCourse" required>
+                    <!-- Options will be populated by JS -->
+                </select>
+                <label for="gradeSequence">Sequence:</label>
+                <select id="gradeSequence" required>
+                    <option value="first">First</option>
+                    <option value="second">Second</option>
+                    <option value="third">Third</option>
+                    <option value="fourth">Fourth</option>
+                    <option value="fifth">Fifth</option>
+                </select>
+                <label for="gradeValue">Grade:</label>
+                <input type="number" id="gradeValue" min="0" max="100" required>
+                <button type="submit">Add Grade</button>
+            </form>
+            <table id="gradesTable">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Course</th>
+                        <th>Sequence</th>
+                        <th>Grade</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="gradesTableBody">
+                    <!-- Rows will be populated by JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="report-cards">
+            <h2>Report Cards</h2>
+            <form id="viewReportCardForm" onsubmit="viewReportCard(event)">
+                <label for="reportCardStudent">Select Student:</label>
+                <select id="reportCardStudent" required>
+                    <!-- Options will be populated by JS -->
+                </select>
+                <button type="submit">View Report Card</button>
+            </form>
+            <div id="reportCardContainer" class="hidden">
+                <div class="report-card" id="reportCard">
+                    <!-- Report card content will be populated by JS -->
+                </div>
+                <button class="print-btn" onclick="printReportCard()">Print Report Card</button>
+                <button id="submitReportCardBtn" class="print-btn hidden" onclick="submitReportCard()">Submit Report Card</button>
+            </div>
+        </section>
+
+        <section id="chat">
+            <h2>Student Chat</h2>
+            <div class="chat">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Messages will be populated by JS -->
+                </div>
+                <form class="chat-input" onsubmit="sendMessage(event)">
+                    <input type="text" id="messageInput" placeholder="Type your message..." required>
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let currentUser = null;
+        let token = null;
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            
+            const navItems = document.querySelectorAll('nav ul li');
+            navItems.forEach(item => item.classList.remove('active'));
+            document.getElementById(sectionId + '-nav').classList.add('active');
+            
+            loadSectionData(sectionId);
+        }
+
+        async function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    token = data.token;
+                    currentUser = data.user;
+                    document.getElementById('login').classList.remove('active');
+                    document.getElementById('nav').classList.remove('hidden');
+                    document.querySelector('.logout').classList.remove('hidden');
+                    showSection('dashboard');
+                    setupNavigation();
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            token = null;
+            document.getElementById('nav').classList.add('hidden');
+            document.querySelector('.logout').classList.add('hidden');
+            document.getElementById('login').classList.add('active');
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                if (section.id !== 'login') section.classList.remove('active');
+            });
+        }
+
+        function setupNavigation() {
+            const navItems = document.querySelectorAll('nav ul li');
+            navItems.forEach(item => {
+                if (currentUser.role === 'student' && ['teachers', 'attendance', 'grades'].includes(item.id.replace('-nav', ''))) {
+                    item.style.display = 'none';
+                } else if (currentUser.role === 'teacher' && ['teachers'].includes(item.id.replace('-nav', ''))) {
+                    item.style.display = 'none';
+                } else {
+                    item.style.display = 'block';
+                }
+            });
+        }
+
+        async function loadSectionData(sectionId) {
+            switch (sectionId) {
+                case 'dashboard':
+                    await loadDashboard();
+                    break;
+                case 'students':
+                    await loadStudents();
+                    break;
+                case 'teachers':
+                    await loadTeachers();
+                    break;
+                case 'courses':
+                    await loadCourses();
+                    break;
+                case 'attendance':
+                    await loadAttendance();
+                    break;
+                case 'grades':
+                    await loadGrades();
+                    break;
+                case 'report-cards':
+                    await loadReportCardStudents();
+                    break;
+                case 'chat':
+                    await loadMessages();
+                    break;
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/dashboard', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const stats = await response.json();
+                document.getElementById('dashboard-cards').innerHTML = `
+                    <div class="card">
+                        <h3>Total Students</h3>
+                        <p>${stats.totalStudents}</p>
+                    </div>
+                    <div class="card">
+                        <h3>Total Teachers</h3>
+                        <p>${stats.totalTeachers}</p>
+                    </div>
+                    <div class="card">
+                        <h3>Total Courses</h3>
+                        <p>${stats.totalCourses}</p>
+                    </div>
+                    <div class="card">
+                        <h3>Attendance Rate</h3>
+                        <p>${stats.attendanceRate}%</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        async function loadStudents() {
+            try {
+                const response = await fetch('/api/students', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const students = await response.json();
+                const tbody = document.getElementById('studentsTableBody');
+                tbody.innerHTML = students.map(student => `
+                    <tr>
+                        <td>${student.id}</td>
+                        <td>${student.name}</td>
+                        <td>${student.email}</td>
+                        <td>${student.grade}</td>
+                        <td>
+                            ${currentUser.role === 'admin' ? '<button onclick="editStudent(\'' + student.id + '\')">Edit</button> <button onclick="deleteStudent(\'' + student.id + '\')">Delete</button>' : ''}
+                        </td>
+                    </tr>
+                `).join('');
+                
+                // Populate student selects
+                const studentSelects = ['attendanceStudent', 'gradeStudent', 'reportCardStudent'];
+                studentSelects.forEach(id => {
+                    const select = document.getElementById(id);
+                    select.innerHTML = '<option value="">Select Student</option>' + 
+                        students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+                });
+            } catch (error) {
+                console.error('Error loading students:', error);
+            }
+        }
+
+        async function addStudent(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const studentData = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/api/students', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(studentData)
+                });
+                if (response.ok) {
+                    alert('Student added successfully');
+                    event.target.reset();
+                    loadStudents();
+                } else {
+                    alert('Failed to add student');
+                }
+            } catch (error) {
+                console.error('Error adding student:', error);
+            }
+        }
+
+        async function loadTeachers() {
+            try {
+                const response = await fetch('/api/teachers', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const teachers = await response.json();
+                const tbody = document.getElementById('teachersTableBody');
+                tbody.innerHTML = teachers.map(teacher => `
+                    <tr>
+                        <td>${teacher.id}</td>
+                        <td>${teacher.name}</td>
+                        <td>${teacher.email}</td>
+                        <td>${teacher.subject}</td>
+                        <td>${teacher.class}</td>
+                        <td>
+                            <button onclick="editTeacher('${teacher.id}')">Edit</button>
+                            <button onclick="deleteTeacher('${teacher.id}')">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                // Populate teacher select
+                const teacherSelect = document.getElementById('courseTeacher');
+                teacherSelect.innerHTML = '<option value="">Select Teacher</option>' + 
+                    teachers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+            } catch (error) {
+                console.error('Error loading teachers:', error);
+            }
+        }
+
+        async function addTeacher(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const teacherData = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/api/teachers', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(teacherData)
+                });
+                if (response.ok) {
+                    alert('Teacher added successfully');
+                    event.target.reset();
+                    loadTeachers();
+                } else {
+                    alert('Failed to add teacher');
+                }
+            } catch (error) {
+                console.error('Error adding teacher:', error);
+            }
+        }
+
+        async function loadCourses() {
+            try {
+                const response = await fetch('/api/courses', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const courses = await response.json();
+                const tbody = document.getElementById('coursesTableBody');
+                tbody.innerHTML = courses.map(course => `
+                    <tr>
+                        <td>${course.id}</td>
+                        <td>${course.name}</td>
+                        <td>${course.teacher}</td>
+                        <td>${course.description}</td>
+                        <td>
+                            <button onclick="editCourse('${course.id}')">Edit</button>
+                            <button onclick="deleteCourse('${course.id}')">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                // Populate course select
+                const courseSelect = document.getElementById('gradeCourse');
+                courseSelect.innerHTML = '<option value="">Select Course</option>' + 
+                    courses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            } catch (error) {
+                console.error('Error loading courses:', error);
+            }
+        }
+
+        async function addCourse(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const courseData = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/api/courses', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(courseData)
+                });
+                if (response.ok) {
+                    alert('Course added successfully');
+                    event.target.reset();
+                    loadCourses();
+                } else {
+                    alert('Failed to add course');
+                }
+            } catch (error) {
+                console.error('Error adding course:', error);
+            }
+        }
+
+        async function loadAttendance() {
+            try {
+                const response = await fetch('/api/attendance', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const attendance = await response.json();
+                const tbody = document.getElementById('attendanceTableBody');
+                tbody.innerHTML = attendance.map(att => `
+                    <tr>
+                        <td>${att.date}</td>
+                        <td>${att.student}</td>
+                        <td>${att.status}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading attendance:', error);
+            }
+        }
+
+        async function markAttendance(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const attendanceData = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/api/attendance', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(attendanceData)
+                });
+                if (response.ok) {
+                    alert('Attendance marked successfully');
+                    event.target.reset();
+                    loadAttendance();
+                } else {
+                    alert('Failed to mark attendance');
+                }
+            } catch (error) {
+                console.error('Error marking attendance:', error);
+            }
+        }
+
+        async function loadGrades() {
+            try {
+                const response = await fetch('/api/grades', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const grades = await response.json();
+                const tbody = document.getElementById('gradesTableBody');
+                tbody.innerHTML = grades.map(grade => `
+                    <tr>
+                        <td>${grade.student}</td>
+                        <td>${grade.course}</td>
+                        <td>${grade.sequence}</td>
+                        <td>${grade.grade}</td>
+                        <td>
+                            <button onclick="editGrade('${grade.id}')">Edit</button>
+                            <button onclick="deleteGrade('${grade.id}')">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading grades:', error);
+            }
+        }
+
+        async function addGrade(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const gradeData = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/api/grades', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(gradeData)
+                });
+                if (response.ok) {
+                    alert('Grade added successfully');
+                    event.target.reset();
+                    loadGrades();
+                } else {
+                    const error = await response.json();
+                    alert(error.message);
+                }
+            } catch (error) {
+                console.error('Error adding grade:', error);
+            }
+        }
+
+        async function loadReportCardStudents() {
+            await loadStudents(); // This will populate the student select
+        }
+
+        async function viewReportCard(event) {
+            event.preventDefault();
+            const studentId = document.getElementById('reportCardStudent').value;
+            
+            try {
+                const response = await fetch(`/api/report-cards/${studentId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const reportCard = await response.json();
+                
+                const container = document.getElementById('reportCardContainer');
+                const reportCardDiv = document.getElementById('reportCard');
+                const submitBtn = document.getElementById('submitReportCardBtn');
+                
+                if (reportCard) {
+                    const student = await getStudentById(studentId);
+                    reportCardDiv.innerHTML = `
+                        <h2>Report Card for ${student.name}</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sequence</th>
+                                    <th>Average Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>First</td><td>${reportCard.sequences.first || 'N/A'}</td></tr>
+                                <tr><td>Second</td><td>${reportCard.sequences.second || 'N/A'}</td></tr>
+                                <tr><td>Third</td><td>${reportCard.sequences.third || 'N/A'}</td></tr>
+                                <tr><td>Fourth</td><td>${reportCard.sequences.fourth || 'N/A'}</td></tr>
+                                <tr><td>Fifth</td><td>${reportCard.sequences.fifth || 'N/A'}</td></tr>
+                            </tbody>
+                        </table>
+                        <p><strong>Overall Average: ${reportCard.average}</strong></p>
+                        <p><strong>Status: ${reportCard.submitted ? 'Submitted' : 'Draft'}</strong></p>
+                    `;
+                    container.classList.remove('hidden');
+                    
+                    if (currentUser.role === 'teacher' && !reportCard.submitted) {
+                        submitBtn.classList.remove('hidden');
+                        submitBtn.onclick = () => submitReportCard(studentId);
+                    } else {
+                        submitBtn.classList.add('hidden');
+                    }
+                } else {
+                    reportCardDiv.innerHTML = '<p>No report card available for this student.</p>';
+                    container.classList.remove('hidden');
+                    submitBtn.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading report card:', error);
+            }
+        }
+
+        async function submitReportCard(studentId) {
+            try {
+                const response = await fetch(`/api/report-cards/${studentId}/submit`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    alert('Report card submitted successfully');
+                    viewReportCard({ preventDefault: () => {} });
+                } else {
+                    alert('Failed to submit report card');
+                }
+            } catch (error) {
+                console.error('Error submitting report card:', error);
+            }
+        }
+
+        function printReportCard() {
+            window.print();
+        }
+
+        async function loadMessages() {
+            try {
+                const response = await fetch('/api/messages', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const messages = await response.json();
+                const messagesDiv = document.getElementById('chatMessages');
+                messagesDiv.innerHTML = messages.map(msg => `
+                    <div><strong>${msg.senderId}:</strong> ${msg.message} <small>(${new Date(msg.timestamp).toLocaleString()})</small></div>
+                `).join('');
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+
+        async function sendMessage(event) {
+            event.preventDefault();
+            const message = document.getElementById('messageInput').value;
+            
+            try {
+                const response = await fetch('/api/messages', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ message })
+                });
+                if (response.ok) {
+                    document.getElementById('messageInput').value = '';
+                    loadMessages();
+                } else {
+                    alert('Failed to send message');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
+        }
+
+        async function getStudentById(id) {
+            const response = await fetch('/api/students', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const students = await response.json();
+            return students.find(s => s.id === id);
+        }
+
+        // Load initial data
+        loadSectionData('dashboard');
+    </script>
+</body>
+</html>
