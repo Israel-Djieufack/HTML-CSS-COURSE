@@ -1,10 +1,22 @@
-FROM nginx:alpine
+FROM node:18-alpine
 
-# Serve the static site from nginx default html directory
-# Copy the main page to index.html and also copy any assets
-COPY ./website.html /usr/share/nginx/html/index.html
-COPY ./ /usr/share/nginx/html/
+WORKDIR /app
 
-EXPOSE 80
+# Copy backend files
+COPY package*.json ./
+RUN npm install
 
-CMD ["nginx", "-g", "daemon off;"]
+# Copy all files
+COPY . .
+
+# Copy website.html to a public directory for nginx
+RUN mkdir -p /usr/share/nginx/html && cp website.html /usr/share/nginx/html/index.html
+
+# Install nginx
+RUN apk add --no-cache nginx
+
+# Expose both backend (3000) and frontend (80)
+EXPOSE 3000 80
+
+# Start both Node.js backend and nginx
+CMD sh -c "npm start & nginx -g 'daemon off;'"
