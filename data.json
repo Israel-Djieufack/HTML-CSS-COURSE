@@ -1,0 +1,42 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "$2a$10$tv9kArReYtwhk/2UOG.JZehNrldbGDZk38FuYPQG1wpT7DrxTrtXy",
+      "role": "admin"
+    },
+    {
+      "id": 2,
+      "username": "teacher1",
+      "password": "$2a$10$lwblZhPmXlZaflIfWNn3OuCupB6YkWCLRak3Wn2TCZEq8shHU4zhi",
+      "role": "teacher",
+      "class": "10th"
+    },
+    {
+      "id": 3,
+      "username": "student1",
+      "password": "$2a$10$nOo4A5T8VWKD5Bzwr1Lgsejh0F0wdKpnwWAMjR4P9CNAWVu4PUaWC",
+      "role": "student",
+      "class": "10th"
+    }
+  ],
+  "students": [
+    {
+      "id": "edb29e71-27a1-41d1-bd13-834819416092"
+    }
+  ],
+  "teachers": [],
+  "courses": [],
+  "attendance": [],
+  "grades": [],
+  "reportCards": [],
+  "messages": [
+    {
+      "id": "06698c65-9c34-4f47-8a4d-d755d65d749a",
+      "message": "Hi here",
+      "senderId": 1,
+      "timestamp": "2026-01-30T00:56:17.735Z"
+    }
+  ]
+}

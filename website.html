@@ -460,6 +460,13 @@
         let currentUser = null;
         let token = null;
         
+        // Security: HTML escape function to prevent XSS attacks
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
         // Helper function to get the correct API URL
         function getApiUrl(endpoint) {
             const hostname = window.location.hostname;
@@ -581,24 +588,27 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const stats = await response.json();
-                document.getElementById('dashboard-cards').innerHTML = `
-                    <div class="card">
-                        <h3>Total Students</h3>
-                        <p>${stats.totalStudents}</p>
-                    </div>
-                    <div class="card">
-                        <h3>Total Teachers</h3>
-                        <p>${stats.totalTeachers}</p>
-                    </div>
-                    <div class="card">
-                        <h3>Total Courses</h3>
-                        <p>${stats.totalCourses}</p>
-                    </div>
-                    <div class="card">
-                        <h3>Attendance Rate</h3>
-                        <p>${stats.attendanceRate}%</p>
-                    </div>
-                `;
+                const dashboardCards = document.getElementById('dashboard-cards');
+                dashboardCards.innerHTML = '';
+                
+                const cardData = [
+                    { title: 'Total Students', value: stats.totalStudents },
+                    { title: 'Total Teachers', value: stats.totalTeachers },
+                    { title: 'Total Courses', value: stats.totalCourses },
+                    { title: 'Attendance Rate', value: stats.attendanceRate + '%' }
+                ];
+                
+                cardData.forEach(card => {
+                    const cardDiv = document.createElement('div');
+                    cardDiv.className = 'card';
+                    const title = document.createElement('h3');
+                    title.textContent = card.title;
+                    const value = document.createElement('p');
+                    value.textContent = card.value;
+                    cardDiv.appendChild(title);
+                    cardDiv.appendChild(value);
+                    dashboardCards.appendChild(cardDiv);
+                });
             } catch (error) {
                 console.error('Error loading dashboard:', error);
             }
@@ -611,24 +621,31 @@
                 });
                 const students = await response.json();
                 const tbody = document.getElementById('studentsTableBody');
-                tbody.innerHTML = students.map(student => `
-                    <tr>
-                        <td>${student.id}</td>
-                        <td>${student.name}</td>
-                        <td>${student.email}</td>
-                        <td>${student.grade}</td>
-                        <td>
-                            ${currentUser.role === 'admin' ? '<button onclick="editStudent(\'' + student.id + '\')">Edit</button> <button onclick="deleteStudent(\'' + student.id + '\')">Delete</button>' : ''}
-                        </td>
-                    </tr>
-                `).join('');
+                tbody.innerHTML = ''; // Clear safely
                 
-                // Populate student selects
+                students.forEach(student => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${escapeHtml(student.id)}</td>
+                        <td>${escapeHtml(student.name)}</td>
+                        <td>${escapeHtml(student.email)}</td>
+                        <td>${escapeHtml(student.grade)}</td>
+                        <td>${currentUser.role === 'admin' ? '<button onclick="editStudent(\'' + student.id + '\')">Edit</button> <button onclick="deleteStudent(\'' + student.id + '\')">Delete</button>' : ''}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                // Populate student selects safely
                 const studentSelects = ['attendanceStudent', 'gradeStudent', 'reportCardStudent'];
-                studentSelects.forEach(id => {
-                    const select = document.getElementById(id);
-                    select.innerHTML = '<option value="">Select Student</option>' + 
-                        students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+                studentSelects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    select.innerHTML = '<option value="">Select Student</option>';
+                    students.forEach(s => {
+                        const option = document.createElement('option');
+                        option.value = s.id;
+                        option.textContent = s.name;
+                        select.appendChild(option);
+                    });
                 });
             } catch (error) {
                 console.error('Error loading students:', error);
