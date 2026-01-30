@@ -459,6 +459,19 @@
     <script>
         let currentUser = null;
         let token = null;
+        
+        // Helper function to get the correct API URL
+        function getApiUrl(endpoint) {
+            const hostname = window.location.hostname;
+            const port = 3000;
+            
+            // If running locally, use localhost:3000
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return `http://localhost:${port}${endpoint}`;
+            }
+            // If running on a different host, use that host with port 3000
+            return `http://${hostname}:${port}${endpoint}`;
+        }
 
         function showSection(sectionId) {
             const sections = document.querySelectorAll('section');
@@ -478,12 +491,19 @@
             const password = document.getElementById('password').value;
             
             try {
-                const response = await fetch('/api/login', {
+                const apiUrl = getApiUrl('/api/login');
+                console.log('Attempting login to:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
                 });
+                
+                console.log('Response status:', response.status);
                 const data = await response.json();
+                console.log('Response data:', data);
+                
                 if (response.ok) {
                     token = data.token;
                     currentUser = data.user;
@@ -493,11 +513,11 @@
                     showSection('dashboard');
                     setupNavigation();
                 } else {
-                    alert(data.message);
+                    alert('Login failed: ' + (data.message || 'Unknown error'));
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                alert('Login failed');
+                alert('Login failed: Backend server is not running on port 3000. Make sure to run "npm start" in your terminal.');
             }
         }
 
@@ -557,7 +577,7 @@
 
         async function loadDashboard() {
             try {
-                const response = await fetch('/api/dashboard', {
+                const response = await fetch(getApiUrl('/api/dashboard'), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const stats = await response.json();
@@ -586,7 +606,7 @@
 
         async function loadStudents() {
             try {
-                const response = await fetch('/api/students', {
+                const response = await fetch(getApiUrl('/api/students'), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const students = await response.json();
@@ -621,7 +641,7 @@
             const studentData = Object.fromEntries(formData);
             
             try {
-                const response = await fetch('/api/students', {
+                const response = await fetch(getApiUrl('/api/students'), {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -643,7 +663,7 @@
 
         async function loadTeachers() {
             try {
-                const response = await fetch('/api/teachers', {
+                const response = await fetch(getApiUrl('/api/teachers'), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const teachers = await response.json();
@@ -677,7 +697,7 @@
             const teacherData = Object.fromEntries(formData);
             
             try {
-                const response = await fetch('/api/teachers', {
+                const response = await fetch(getApiUrl('/api/teachers'), {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -699,7 +719,7 @@
 
         async function loadCourses() {
             try {
-                const response = await fetch('/api/courses', {
+                const response = await fetch(getApiUrl('/api/courses'), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const courses = await response.json();
@@ -732,7 +752,7 @@
             const courseData = Object.fromEntries(formData);
             
             try {
-                const response = await fetch('/api/courses', {
+                const response = await fetch(getApiUrl('/api/courses'), {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -754,7 +774,7 @@
 
         async function loadAttendance() {
             try {
-                const response = await fetch('/api/attendance', {
+                const response = await fetch(getApiUrl('/api/attendance'), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const attendance = await response.json();
@@ -777,7 +797,7 @@
             const attendanceData = Object.fromEntries(formData);
             
             try {
-                const response = await fetch('/api/attendance', {
+                const response = await fetch(getApiUrl('/api/attendance'), {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -799,7 +819,7 @@
 
         async function loadGrades() {
             try {
-                const response = await fetch('/api/grades', {
+                const response = await fetch(getApiUrl('/api/grades'), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const grades = await response.json();
@@ -827,7 +847,7 @@
             const gradeData = Object.fromEntries(formData);
             
             try {
-                const response = await fetch('/api/grades', {
+                const response = await fetch(getApiUrl('/api/grades'), {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -929,7 +949,7 @@
 
         async function loadMessages() {
             try {
-                const response = await fetch('/api/messages', {
+                const response = await fetch(getApiUrl('/api/messages'), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const messages = await response.json();
@@ -948,7 +968,7 @@
             const message = document.getElementById('messageInput').value;
             
             try {
-                const response = await fetch('/api/messages', {
+                const response = await fetch(getApiUrl('/api/messages'), {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -968,7 +988,7 @@
         }
 
         async function getStudentById(id) {
-            const response = await fetch('/api/students', {
+            const response = await fetch(getApiUrl('/api/students'), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const students = await response.json();
